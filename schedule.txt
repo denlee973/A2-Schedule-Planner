@@ -1,0 +1,9 @@
+Chemistry
+French
+Computer Science
+Math 1
+Math 2
+Vocal
+English
+Physics
+S: Havergal	D: 8	B: 8	P: 4	
