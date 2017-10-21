@@ -30,8 +30,9 @@ def date():
     from datetime import date
     import calendar
     now = datetime.datetime.now()
-    print "{}, {} {}, {}".format(calendar.day_name[date.today().weekday()],calendar.month_name[now.month],now.day,now.year)
-
+    weekday = calendar.day_name[date.today().weekday()]
+    print "~~~~~~~~~~ {}, {} {}, {} ~~~~~~~~~~".format(weekday,calendar.month_name[now.month],now.day,now.year)
+    return weekday
 
 def school_blocks():
     school = raw_input("What school do you go to? ")
@@ -57,7 +58,7 @@ def in_schedule(school, days, blocks, periods):
     schedule = []
     for i in range(days):
         schedule.append([0]*periods)
-    print schedule
+    print "Please input your courses in the order that they occur."
     f = open('schedule.txt','a')
     for k in range(blocks):
         course = raw_input("What is block #{}? ".format(k+1))
@@ -67,6 +68,36 @@ def in_schedule(school, days, blocks, periods):
         f.write(info[r]+'\t')
 
     f.close()
+    
+def p_schedule(data,school):
+    if school == "Havergal":
+        a = data[0][0:len(data[0])-1]
+        b = data[1][0:len(data[1])-1]
+        c = data[2][0:len(data[2])-1]
+        d = data[3][0:len(data[3])-1]
+        e = data[4][0:len(data[4])-1]
+        f = data[5][0:len(data[5])-1]
+        g = data[6][0:len(data[6])-1]
+        h = data[7][0:len(data[7])-1]
+        
+        schedule = [[a,b,c,d],[e,f,g,h],[c,d,a,b],[g,h,e,f],[b,a,d,c],[f,e,h,g],[d,c,b,a],[h,g,f,e]]
+        
+        tabs = [1,1,1,1,1,1,1,1]
+        for e in range(8):
+            if len(data[e]) > 10:
+                tabs[e] += 2
+            elif len(data[e]) > 5:
+                tabs[e] += 1
+        print tabs
+        print "-=+=- SCHEDULE -=+=-"
+        print "Day 1\tDay 2\tDay 3\tDay 4\tDay 5\tDay 6\tDay 7\tDay 8"
+        for j in range(4):
+            for k in range(8):
+                print schedule[k][j] +'\t',
+            print ""
+        print ""
+    else:
+        print "Sorry, the schedule for your school is not yet supported."
 def main(data):
     if len(data) >= 8:
         print "Schedule found."
@@ -79,35 +110,11 @@ def main(data):
         print "Need to input schedule."
         school, days, blocks, periods = school_blocks()
         in_schedule(school,days,blocks,periods)
-        
+    print "\n"*50
+    weekday = date()
+    print "\n"
     data = update_data()
-    for i in range(len(data)):
-        dat = data[i]
-        dat = dat[0:len(dat)-1]
-        print dat,
-    print ""
-    print school
-    if school == "Havergal":
-        a = data[0][0:len(data[0])-1]
-        b = data[1][0:len(data[1])-1]
-        c = data[2][0:len(data[2])-1]
-        d = data[3][0:len(data[3])-1]
-        e = data[4][0:len(data[4])-1]
-        f = data[5][0:len(data[5])-1]
-        g = data[6][0:len(data[6])-1]
-        h = data[7][0:len(data[7])-1]
-        tabs = [1,1,1,1,1,1,1,1]
-        for e in range(8):
-            if len(data[e]) > 8:
-                tabs[e] += 1
-        print tabs
-        schedule = [[a,b,c,d],[e,f,g,h],[c,d,a,b],[g,h,e,f],[b,a,d,c],[f,e,h,g],[d,c,b,a],[h,g,f,e]]
-        print "Day 1\tDay 2\tDay 3\tDay 4\tDay 5\tDay 6\tDay 7\tDay 8"
-        for j in range(4):
-            for k in range(8):
-                print str(schedule[k][j]) +'\t',
-            print ""
-        print ""
+    p_schedule(data,school)
+
 
 main(data)
-date()
