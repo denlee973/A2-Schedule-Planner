@@ -88,7 +88,7 @@ def late_start():
 
     return twenty, thirty
     
-def p_schedule(data,school):
+def g_schedule(data,school):
     if school == "Havergal":
         a = data[0][0:len(data[0])-1]
         b = data[1][0:len(data[1])-1]
@@ -100,41 +100,41 @@ def p_schedule(data,school):
         h = data[7][0:len(data[7])-1]
         
         schedule = [[a,b,c,d],[e,f,g,h],[c,d,a,b],[g,h,e,f],[b,a,d,c],[f,e,h,g],[d,c,b,a],[h,g,f,e]]
-        
-        tabs = [1,1,1,1,1,1,1,1]
-        for e in range(8):
-            if len(data[e]) > 10:
-                tabs[e] += 2
-            elif len(data[e]) > 5:
-                tabs[e] += 1
-        print tabs
-        print " -=+=- SCHEDULE -=+=- "
-        print "Day 1"+"\t"*3+"Day 2"+"\t"*3+"Day 3"+"\t"*3+"Day 4"
-        for j in range(4):
-            for k in range(4):
-                if len(schedule[k][j]) < 8:
-                    print schedule[k][j] +'\t'*3,
-                elif len(schedule[k][j]) >= 8 and len(schedule[k][j]) <= 10:
-                    print schedule[k][j] +'\t'*2,
-                else:
-                    print schedule[k][j]+'\t',
-            print ""
-        print ""
-        print "Day 5"+"\t"*3+"Day 6"+"\t"*3+"Day 7"+"\t"*3+"Day 8"
-        for j in range(4):
-            for k in range(4):
-                if len(schedule[k+4][j]) < 8:
-                    print schedule[k+4][j] +'\t'*3,
-                elif len(schedule[k+4][j]) >= 8 and len(schedule[k+4][j]) <= 10:
-                    print schedule[k+4][j] +'\t'*2,
-                else:
-                    print schedule[k+4][j]+'\t',
-            print ""
-        print ""
         return schedule
     else:
         print "Sorry, the schedule for your school is not yet supported."
         
+def p_schedule(data,schedule,):
+    tabs = [1,1,1,1,1,1,1,1]
+    for e in range(8):
+        if len(data[e]) > 10:
+            tabs[e] += 2
+        elif len(data[e]) > 5:
+            tabs[e] += 1
+    print tabs
+    print " -=+=- SCHEDULE -=+=- "
+    print "Day 1"+"\t"*3+"Day 2"+"\t"*3+"Day 3"+"\t"*3+"Day 4"
+    for j in range(4):
+        for k in range(4):
+            if len(schedule[k][j]) < 8:
+                print schedule[k][j] +'\t'*3,
+            elif len(schedule[k][j]) >= 8 and len(schedule[k][j]) <= 10:
+                print schedule[k][j] +'\t'*2,
+            else:
+                print schedule[k][j]+'\t',
+        print ""
+    print ""
+    print "Day 5"+"\t"*3+"Day 6"+"\t"*3+"Day 7"+"\t"*3+"Day 8"
+    for j in range(4):
+        for k in range(4):
+            if len(schedule[k+4][j]) < 8:
+                print schedule[k+4][j] +'\t'*3,
+            elif len(schedule[k+4][j]) >= 8 and len(schedule[k+4][j]) <= 10:
+                print schedule[k+4][j] +'\t'*2,
+            else:
+                print schedule[k+4][j]+'\t',
+        print ""
+    print ""
         
 def today(data,schedule,weekday,nmonth,nday):
     times = []
@@ -173,7 +173,7 @@ def today(data,schedule,weekday,nmonth,nday):
                 times = ["8:20am","8:30am","9:00am","9:10am","10:20am","10:45am","11:55am","1:00pm","2:10pm","2:20pm","3:30pm"]
             classes = ["TA Attendance","Prayers/House/Assembly","Break",schedule[day][0],"Break",schedule[day][1],"Lunch",schedule[day][2],"Break",schedule[day][3]]
         else:
-            print "There is no school today."
+            print "There is no school."
         for f in range(len(times)*2-2):
             try:
                 timing = times[f]+" - "+times[f+1]
@@ -210,8 +210,28 @@ def main():
         weekday,nmonth,nday = p_date()
         print "\n"
         data = update_data(name)
-        schedule = p_schedule(data,school)
-        today(data,schedule,weekday,nmonth,nday)
+        schedule = g_schedule(data,school)
+        while quit == False:
+            call = raw_input("What would you me like to do? ")
+            if call.find("help") >= 0 or call.find("can") >= 0:
+                print "I can print out your schedule, give you the times for your classes today,\nand tell you what times you have for tomorrow.\nSimply type what you would like me to do.\n"
+            elif call.find("today") >= 0 or call.find("Today") >= 0:
+                print "1"
+                today(data,schedule,weekday,nmonth,nday)
+            elif call.find("schedule") >= 0 or call.find("table") >= 0:
+                print'2'
+                p_schedule(data,schedule)
+            elif call.find("tomorrow") >= 0 or call.find("Tomorrow") >= 0:
+                print "3"
+                today(data,schedule,weekday+2,nmonth,nday)
+            elif call.find("credits")  >= 0 or call.find("Credits") >= 0 or call.find("made") >= 0:
+                print "Made by Denise Lee\nComSci 12 - A2\nOctober 26, 2017\n"
+            elif call.find("quit") >= 0 or call.find("Quit") >= 0 or call.find("stop") >= 0 or call.find("Stop") >= 0:
+                print "4"
+                quit = True
+            else:
+                continue
+
 
 
 main()
