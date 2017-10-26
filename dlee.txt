@@ -6,4 +6,4 @@ Math 2
 Vocal
 English
 Physics
-S: Havergal	D: 8	B: 8	P: 4	
+S: Havergal	D: 8	B: 8	P: 4

@@ -4,15 +4,21 @@
 # Schedule Planner for CS 12 A2
 import datetime
 
-
-def update_data():
-    f = open('schedule.txt')
-    data = f.readlines()
-    f.close()
+def user():
+    name = raw_input("username: ")
+    return name
+    
+def update_data(files):
+    try:
+        f = open(files+'.txt')
+    except:
+        data = []
+    else:
+        data = f.readlines()
+        f.close()
     return data
-data = update_data()
 
-def tryexc(do):
+def tryexc(do,max):
     trying = True
     while trying:
         try:
@@ -21,29 +27,31 @@ def tryexc(do):
             print "Please input a numerical value."
         else:
             if answer > 25:
-                print "Please input a value less than 25."
+                print "Please input a value less than {}.".format(max)
             else:
                 trying = False
     return answer
 
-def date():
+def p_date():
     from datetime import date
-    import calendar
+    import calendar 
     now = datetime.datetime.now()
-    weekday = calendar.day_name[date.today().weekday()]
-    print "~~~~~~~~~~ {}, {} {}, {} ~~~~~~~~~~".format(weekday,calendar.month_name[now.month],now.day,now.year)
-    return weekday
+    weekday = date.today().weekday()
+    nmonth = now.month
+    nday = now.day
+    print "~~~~~~~~~~ {}, {} {}, {} ~~~~~~~~~~".format(calendar.day_name[weekday],calendar.month_name[nmonth],nday,now.year)
+    return weekday,nmonth,nday
 
 def school_blocks():
     school = raw_input("What school do you go to? ")
     if school != "Havergal" and school != "Havergal College" and school != "havergal" and school != "havergal college" and school != "HC" and school != "hc":
-        days = tryexc("How many days are in your schedule? ")
+        days = tryexc("How many days are in your schedule? ",25)
         print days
         
-        periods = tryexc("How many periods are in a day? (If it is not evenly divided by time, please input the common denominator of times.)")
+        periods = tryexc("How many periods are in a day? (If it is not evenly divided by time, please input the common denominator of times.)",25)
         print periods
         
-        blocks = tryexc("How many courses do you have? ")
+        blocks = tryexc("How many courses do you have? ",25)
         print blocks
 
     else:
@@ -69,6 +77,17 @@ def in_schedule(school, days, blocks, periods):
 
     f.close()
     
+def late_start():
+    late = raw_input("Is today a 9:20 or 9:30 schedule? ")
+    twenty = False
+    thirty = False
+    if late.find("20") >= 0 or late.find("twenty") >= 0:
+        twenty = True
+    elif late.find("30") >= 0 or late.find("thirty") >= 0:
+        thirty = True
+
+    return twenty, thirty
+    
 def p_schedule(data,school):
     if school == "Havergal":
         a = data[0][0:len(data[0])-1]
@@ -89,32 +108,110 @@ def p_schedule(data,school):
             elif len(data[e]) > 5:
                 tabs[e] += 1
         print tabs
-        print "-=+=- SCHEDULE -=+=-"
-        print "Day 1\tDay 2\tDay 3\tDay 4\tDay 5\tDay 6\tDay 7\tDay 8"
+        print " -=+=- SCHEDULE -=+=- "
+        print "Day 1"+"\t"*3+"Day 2"+"\t"*3+"Day 3"+"\t"*3+"Day 4"
         for j in range(4):
-            for k in range(8):
-                print schedule[k][j] +'\t',
+            for k in range(4):
+                if len(schedule[k][j]) < 8:
+                    print schedule[k][j] +'\t'*3,
+                elif len(schedule[k][j]) >= 8 and len(schedule[k][j]) <= 10:
+                    print schedule[k][j] +'\t'*2,
+                else:
+                    print schedule[k][j]+'\t',
             print ""
         print ""
+        print "Day 5"+"\t"*3+"Day 6"+"\t"*3+"Day 7"+"\t"*3+"Day 8"
+        for j in range(4):
+            for k in range(4):
+                if len(schedule[k+4][j]) < 8:
+                    print schedule[k+4][j] +'\t'*3,
+                elif len(schedule[k+4][j]) >= 8 and len(schedule[k+4][j]) <= 10:
+                    print schedule[k+4][j] +'\t'*2,
+                else:
+                    print schedule[k+4][j]+'\t',
+            print ""
+        print ""
+        return schedule
     else:
         print "Sorry, the schedule for your school is not yet supported."
-def main(data):
+        
+        
+def today(data,schedule,weekday,nmonth,nday):
+    times = []
+    classes = []
+    first = 1
+    # day = tryexc("What day of the schedule is it today? ",9)
+    day = abs(weekday - first)
+    day9 = False
+    latewed = False
+    sdata = update_data("special_schedules")
+    for i in range(len(sdata)):
+        new = sdata[i].split('\\t')
+        for k in range(len(new)):
+            sdate = new[k].split('.')
+            if sdate[0] == nmonth and sdate[1] == nday:
+                if i == 0:
+                    day9 = True
+                elif i == 1:
+                    latewed = True
+    
+    now = datetime.datetime.now()
+    if day9 == False and latewed == False:
+        if weekday == 2:
+            times = ["8:20am","9:30am","9:55am","11:05am","12:10pm","1:20pm","1:30pm","2:40pm"]
+            classes = [schedule[day][0],"Break",schedule[day][1],"Lunch",schedule[day][2],"Break",schedule[day][3]]
+        elif weekday != 5 and weekday != 6:
+            if now.hour >= 9:
+                twenty, thirty = late_start()
+                if twenty:
+                    times = ["9:20am","10:30am","10:55am","12:05pm","1:00pm","2:10pm","2:20pm","3:30pm"]
+                elif thirty:
+                    times = ["9:30am","10:40am","10:50am","12:00pm","1:00pm","2:10pm","2:20pm","3:30pm"]
+                else:
+                    times = ["8:20am","8:30am","9:00am","9:10am","10:20am","10:45am","11:55am","1:00pm","2:10pm","2:20pm","3:30pm"]
+            else:
+                times = ["8:20am","8:30am","9:00am","9:10am","10:20am","10:45am","11:55am","1:00pm","2:10pm","2:20pm","3:30pm"]
+            classes = ["TA Attendance","Prayers/House/Assembly","Break",schedule[day][0],"Break",schedule[day][1],"Lunch",schedule[day][2],"Break",schedule[day][3]]
+        else:
+            print "There is no school today."
+        for f in range(len(times)*2-2):
+            try:
+                timing = times[f]+" - "+times[f+1]
+                if len(timing) < 16:
+                    print timing+"\t"*2,
+                else:
+                    print timing+"\t",
+                print classes[f]+'\n' 
+            except:
+                pass
+        
+
+        
+def main():
+    quit = False
+    name = user()
+    data = update_data(name)
     if len(data) >= 8:
-        print "Schedule found."
         info = data[len(data)-1].split('\t')
         if info[0] == "S: Havergal":
             school = "Havergal"
         else:
             school = "Other"
     else:
-        print "Need to input schedule."
-        school, days, blocks, periods = school_blocks()
-        in_schedule(school,days,blocks,periods)
-    print "\n"*50
-    weekday = date()
-    print "\n"
-    data = update_data()
-    p_schedule(data,school)
+        print "User not found."
+        ans = raw_input("Would you like to create a new account? ")
+        if ans.find("Y") >= 0 or ans.find("y") >= 0:
+            school, days, blocks, periods = school_blocks()
+            in_schedule(school,days,blocks,periods)
+        else:
+            quit = True
+    if quit == False:
+        print "\n"*50
+        weekday,nmonth,nday = p_date()
+        print "\n"
+        data = update_data(name)
+        schedule = p_schedule(data,school)
+        today(data,schedule,weekday,nmonth,nday)
 
 
-main(data)
+main()
