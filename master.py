@@ -140,6 +140,7 @@ def today(data,schedule,weekday,nmonth,nday):
     times = []
     classes = []
     first = 1
+    weekday = 2
     # day = tryexc("What day of the schedule is it today? ",9)
     day = abs(weekday - first)
     day9 = False
@@ -149,16 +150,26 @@ def today(data,schedule,weekday,nmonth,nday):
         new = sdata[i].split('\\t')
         for k in range(len(new)):
             sdate = new[k].split('.')
-            if sdate[0] == nmonth and sdate[1] == nday:
-                if i == 0:
-                    day9 = True
-                elif i == 1:
-                    latewed = True
+            try:
+                sdate[0] = int(sdate[0])
+                sdate[1] = int(sdate[1])
+            except:
+                pass
+            else:
+                if sdate[0] == nmonth and sdate[1] == nday:
+                    if i == 0:
+                        day9 = True
+                    elif i == 1:
+                        latewed = True
     
     now = datetime.datetime.now()
-    if day9 == False and latewed == False:
+    if day9 == False:
         if weekday == 2:
-            times = ["8:20am","9:30am","9:55am","11:05am","12:10pm","1:20pm","1:30pm","2:40pm"]
+            if latewed:
+                print "It is a late Wednesday schedule."
+                times = ["9:20am","10:20am","10:30am","11:30am","12:30pm","1:30pm","1:40pm","2:40pm"]
+            else:
+                times = ["8:20am","9:30am","9:55am","11:05am","12:10pm","1:20pm","1:30pm","2:40pm"]
             classes = [schedule[day][0],"Break",schedule[day][1],"Lunch",schedule[day][2],"Break",schedule[day][3]]
         elif weekday != 5 and weekday != 6:
             if now.hour >= 9:
@@ -184,6 +195,9 @@ def today(data,schedule,weekday,nmonth,nday):
                 print classes[f]+'\n' 
             except:
                 pass
+    else:
+        print "It is a Day 9 schedule. Have fun!"
+
         
 
         
@@ -223,14 +237,15 @@ def main():
                 p_schedule(data,schedule)
             elif call.find("tomorrow") >= 0 or call.find("Tomorrow") >= 0:
                 print "3"
-                today(data,schedule,weekday+2,nmonth,nday)
-            elif call.find("credits")  >= 0 or call.find("Credits") >= 0 or call.find("made") >= 0:
+                today(data,schedule,weekday+1,nmonth,nday)
+            
+            elif call.find("credits")  >= 0 or call.find("Credits") >= 0 or call.find("who") >= 0 or call.find("cool") >= 0:
                 print "Made by Denise Lee\nComSci 12 - A2\nOctober 26, 2017\n"
             elif call.find("quit") >= 0 or call.find("Quit") >= 0 or call.find("stop") >= 0 or call.find("Stop") >= 0:
                 print "4"
                 quit = True
             else:
-                continue
+                print "Sorry, I can't do that. Try something else?"
 
 
 
