@@ -1,9 +1,0 @@
-chemistry
-data
-latin
-english
-econ
-physics
-American history
-math
-S: Havergal	D: 8	B: 8	P: 4	

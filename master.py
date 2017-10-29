@@ -5,6 +5,7 @@
 import datetime
 
 def user():
+    print "\t\t-=+=- Havergal Planner 2017/18 -=+=-"
     name = raw_input("username: ")
     return name
     
@@ -18,6 +19,16 @@ def update_data(files):
         f.close()
     return data
 
+def add_data(files,lines):
+    try:
+        f = open(files+'.txt',"a")
+    except:
+        data = []
+    else:
+        for i in range(len(lines)):
+            f.write(lines[i]+'\n')
+        
+
 def tryexc(do,max):
     trying = True
     while trying:
@@ -27,7 +38,7 @@ def tryexc(do,max):
             print "Please input a numerical value."
         else:
             if answer > 25:
-                print "Please input a value less than {}.".format(max)
+                print "Please input a value less than {}.".format(str(max))
             else:
                 trying = False
     return answer
@@ -42,9 +53,43 @@ def p_date():
     print "~~~~~~~~~~ {}, {} {}, {} ~~~~~~~~~~".format(calendar.day_name[weekday],calendar.month_name[nmonth],nday,now.year)
     return weekday,nmonth,nday
 
+def start():
+    quit = False
+    name = user()
+    data = update_data(name)
+    if len(data) >= 8:
+        info = data[len(data)-1].split('\t')
+        if info[0] == "S: Havergal":
+            school = "Havergal"
+        else:
+            school = "Other"
+    if len(data) < 8:
+        print "User not found."
+        ans = ""
+        while len(ans) < 1:
+            ans = raw_input("Would you like to create a new account? ")
+            if len(ans) < 1:
+                print "Please input an answer."
+                continue
+            if ans.find("Y") >= 0 or ans.find("y") >= 0:
+                f = open(name+'.txt','w+')
+                school, days, blocks, periods = school_blocks()
+                in_schedule(name,school,days,blocks,periods)
+            elif ans.find("N") >= 0 or ans.find("n") >= 0:
+                quit = True
+            else:
+                print "Please input an answer."
+                ans = ""
+    if quit == False:
+        print "\n"*50
+        weekday,nmonth,nday = p_date()
+        print "\n"
+        schedule = g_schedule(data,school)
+    return quit,name,school,weekday,nmonth,nday,schedule
+
 def school_blocks():
     school = raw_input("What school do you go to? ")
-    if school != "Havergal" and school != "Havergal College" and school != "havergal" and school != "havergal college" and school != "HC" and school != "hc":
+    if school != "Havergal" and school != "Havergal College" and school != "havergal" and school != "havergal college" and school != "HC" and school != "hc" and school != "Hc":
         days = tryexc("How many days are in your schedule? ",25)
         print days
         
@@ -62,12 +107,12 @@ def school_blocks():
     
     return school, days, blocks, periods
 
-def in_schedule(school, days, blocks, periods): 
+def in_schedule(name,school, days, blocks, periods): 
     schedule = []
     for i in range(days):
         schedule.append([0]*periods)
     print "Please input your courses in the order that they occur."
-    f = open('schedule.txt','a')
+    f = open(name+'.txt','a')
     for k in range(blocks):
         course = raw_input("What is block #{}? ".format(k+1))
         f.write(course+'\n')
@@ -89,20 +134,20 @@ def late_start():
     return twenty, thirty
     
 def g_schedule(data,school):
-    if school == "Havergal":
-        a = data[0][0:len(data[0])-1]
-        b = data[1][0:len(data[1])-1]
-        c = data[2][0:len(data[2])-1]
-        d = data[3][0:len(data[3])-1]
-        e = data[4][0:len(data[4])-1]
-        f = data[5][0:len(data[5])-1]
-        g = data[6][0:len(data[6])-1]
-        h = data[7][0:len(data[7])-1]
-        
-        schedule = [[a,b,c,d],[e,f,g,h],[c,d,a,b],[g,h,e,f],[b,a,d,c],[f,e,h,g],[d,c,b,a],[h,g,f,e]]
-        return schedule
-    else:
-        print "Sorry, the schedule for your school is not yet supported."
+    # if school == "Havergal":
+    a = data[0][0:len(data[0])-1]
+    b = data[1][0:len(data[1])-1]
+    c = data[2][0:len(data[2])-1]
+    d = data[3][0:len(data[3])-1]
+    e = data[4][0:len(data[4])-1]
+    f = data[5][0:len(data[5])-1]
+    g = data[6][0:len(data[6])-1]
+    h = data[7][0:len(data[7])-1]
+    
+    schedule = [[a,b,c,d],[e,f,g,h],[c,d,a,b],[g,h,e,f],[b,a,d,c],[f,e,h,g],[d,c,b,a],[h,g,f,e]]
+    return schedule
+    # else:
+    #     print "Sorry, the schedule for your school is not yet supported."
         
 def p_schedule(data,schedule,):
     tabs = [1,1,1,1,1,1,1,1]
@@ -111,8 +156,7 @@ def p_schedule(data,schedule,):
             tabs[e] += 2
         elif len(data[e]) > 5:
             tabs[e] += 1
-    print tabs
-    print " -=+=- SCHEDULE -=+=- "
+    print "\n -=+=- SCHEDULE -=+=- "
     print "Day 1"+"\t"*3+"Day 2"+"\t"*3+"Day 3"+"\t"*3+"Day 4"
     for j in range(4):
         for k in range(4):
@@ -140,7 +184,6 @@ def today(data,schedule,weekday,nmonth,nday):
     times = []
     classes = []
     first = 1
-    weekday = 2
     # day = tryexc("What day of the schedule is it today? ",9)
     day = abs(weekday - first)
     day9 = False
@@ -197,55 +240,48 @@ def today(data,schedule,weekday,nmonth,nday):
                 pass
     else:
         print "It is a Day 9 schedule. Have fun!"
+    print '\n'
 
+
+def edit(name,schedule):
+    change = raw_input("What would you like to edit? ")
+    if change.find("switch") >= 0 or change.find("schedule") >= 0:
+        which = tryexc("What block would you like to change?",'15')
         
 
         
 def main():
-    quit = False
-    name = user()
-    data = update_data(name)
-    if len(data) >= 8:
-        info = data[len(data)-1].split('\t')
-        if info[0] == "S: Havergal":
-            school = "Havergal"
-        else:
-            school = "Other"
-    else:
-        print "User not found."
-        ans = raw_input("Would you like to create a new account? ")
-        if ans.find("Y") >= 0 or ans.find("y") >= 0:
-            school, days, blocks, periods = school_blocks()
-            in_schedule(school,days,blocks,periods)
-        else:
-            quit = True
-    if quit == False:
-        print "\n"*50
-        weekday,nmonth,nday = p_date()
-        print "\n"
+    quit,name,school,weekday,nmonth,nday,schedule = start()
+    while quit == False:
         data = update_data(name)
-        schedule = g_schedule(data,school)
-        while quit == False:
-            call = raw_input("What would you me like to do? ")
-            if call.find("help") >= 0 or call.find("can") >= 0:
-                print "I can print out your schedule, give you the times for your classes today,\nand tell you what times you have for tomorrow.\nSimply type what you would like me to do.\n"
-            elif call.find("today") >= 0 or call.find("Today") >= 0:
-                print "1"
-                today(data,schedule,weekday,nmonth,nday)
-            elif call.find("schedule") >= 0 or call.find("table") >= 0:
-                print'2'
-                p_schedule(data,schedule)
-            elif call.find("tomorrow") >= 0 or call.find("Tomorrow") >= 0:
-                print "3"
-                today(data,schedule,weekday+1,nmonth,nday)
+        call = raw_input("What would you me like to do? (schedule/today/tomorrow/log out/credits/quit) ")
+        
+        if call.find("schedule") >= 0 or call.find("table") >= 0:
+            p_schedule(data,schedule)
+        
+        elif call.find("today") >= 0 or call.find("Today") >= 0:
+            print "\nToday's schedule is : \n"
+            today(data,schedule,weekday,nmonth,nday)
             
-            elif call.find("credits")  >= 0 or call.find("Credits") >= 0 or call.find("who") >= 0 or call.find("cool") >= 0:
-                print "Made by Denise Lee\nComSci 12 - A2\nOctober 26, 2017\n"
-            elif call.find("quit") >= 0 or call.find("Quit") >= 0 or call.find("stop") >= 0 or call.find("Stop") >= 0:
-                print "4"
-                quit = True
-            else:
-                print "Sorry, I can't do that. Try something else?"
+        elif call.find("tomorrow") >= 0 or call.find("Tomorrow") >= 0:
+            print "\nTomorrow's schedule is: \n"
+            today(data,schedule,weekday+1,nmonth,nday)
+        
+        elif call.find("credits") >= 0 or call.find("Credits") >= 0 or call.find("who") >= 0 or call.find("cool") >= 0:
+            print "\nMade by Denise Lee\nComSci 12 - A2\nOctober 26, 2017\n"
+        
+        elif call.find("log") >= 0 or call.find("Log") >= 0 or call.find("out") >= 0 or call.find("Out") >= 0:
+            print "\n"*50
+            print "\nSuccessfully logged out.\n\n"
+            quit,name,school,weekday,nmonth,nday,schedule = start()
+            
+        elif call.find("quit") >= 0 or call.find("Quit") >= 0 or call.find("stop") >= 0 or call.find("Stop") >= 0:
+            quit = True
+            
+        else:
+            print "Sorry, I can't do that. Try something else?"
+            print "I can print out your schedule, give you the times for your classes today,\nand tell you what times you have for tomorrow.\nSimply type what you would like me to do.\n"
+
 
 
 
