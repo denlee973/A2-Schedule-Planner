@@ -31,11 +31,7 @@ def split_data(data,by):
             new = data[k].split(by[0])
             for p in range(len(new)):
                 new[p] = new[p].split(by[1])
-                print new
-                print "D:"
             ndata.append(new)
-        print ndata
-        print ":D"
         sdata.append(ndata)
     elif len(by) == 1:
         for t in range(len(data)):
@@ -118,13 +114,10 @@ def school_blocks():
     school = raw_input("What school do you go to? ")
     if school != "Havergal" and school != "Havergal College" and school != "havergal" and school != "havergal college" and school != "HC" and school != "hc" and school != "Hc":
         days = tryexc("How many days are in your schedule? ",25)
-        print days
         
         periods = tryexc("How many periods are in a day? (If it is not evenly divided by time, please input the common denominator of times.)",25)
-        print periods
         
         blocks = tryexc("How many courses do you have? ",25)
-        print blocks
 
     else:
         school = "Havergal"
@@ -161,20 +154,20 @@ def late_start():
     return twenty, thirty
     
 def g_schedule(data,school):
-    # if school == "Havergal":
-    a = data[0][0:len(data[0])-1]
-    b = data[1][0:len(data[1])-1]
-    c = data[2][0:len(data[2])-1]
-    d = data[3][0:len(data[3])-1]
-    e = data[4][0:len(data[4])-1]
-    f = data[5][0:len(data[5])-1]
-    g = data[6][0:len(data[6])-1]
-    h = data[7][0:len(data[7])-1]
-    
-    schedule = [[a,b,c,d],[e,f,g,h],[c,d,a,b],[g,h,e,f],[b,a,d,c],[f,e,h,g],[d,c,b,a],[h,g,f,e]]
-    return schedule
-    # else:
-    #     print "Sorry, the schedule for your school is not yet supported."
+    if school == "Havergal":
+        a = data[0][0:len(data[0])-1]
+        b = data[1][0:len(data[1])-1]
+        c = data[2][0:len(data[2])-1]
+        d = data[3][0:len(data[3])-1]
+        e = data[4][0:len(data[4])-1]
+        f = data[5][0:len(data[5])-1]
+        g = data[6][0:len(data[6])-1]
+        h = data[7][0:len(data[7])-1]
+        
+        schedule = [[a,b,c,d],[e,f,g,h],[c,d,a,b],[g,h,e,f],[b,a,d,c],[f,e,h,g],[d,c,b,a],[h,g,f,e]]
+        return schedule
+    else:
+        print "Sorry, the schedule for your school is not yet supported."
         
 def p_schedule(data,schedule,):
     tabs = [1,1,1,1,1,1,1,1]
@@ -206,69 +199,108 @@ def p_schedule(data,schedule,):
                 print schedule[k+4][j]+'\t',
         print ""
     print ""
+
+def special_schedule(sdata,num,nmonth,nday):
+    special_day = False
+    for k in range(len(sdata[0][num])):
+        sdate = sdata[0][num][k]
+        if k != 0:
+            sdate[0] = int(sdate[0])
+            sdate[1] = int(sdate[1])
+            if sdate[0] == nmonth and sdate[1] == nday:
+                special_day = True
+                print ":D"
+    return special_day
         
 def today(schedule,weekday,nmonth,nday,nweek,tomorrow):
     times = []
     classes = []
     sdata = update_data("dates",2,["\t","."])
-    print sdata[0][3]
     best = [0,0]
-
-    for r in range(len(sdata[0][3])):
-        if nday > 6:
-            try:
-                if int(sdata[0][3][r][0]) == int(nmonth) and int(sdata[0][3][r][1]) < int(nday) and int(sdata[0][3][r][1]) > int(best[1]):
-                    best[0] = int(sdata[0][3][r][0])
-                    best[1] = int(sdata[0][3][r][1])
-
-            except:
-                pass
+    weekend = False
+    if tomorrow:
+        if (nmonth == 2 and nday == 28) or (nmonth == 1 or nmonth == 3 or nmonth == 5 or nmonth == 7 or nmonth == 8 or nmonth == 10 or nmonth == 12 and nday == 31) or (nmonth == 1 or nmonth == 3 or nmonth == 5 or nmonth == 7 or nmonth == 8 or nmonth == 10 or nmonth == 12 and nday == 30):
+            nmonth += 1
+            nday = 1
         else:
-            try:
-                print "oh"
-                if int(sdata[0][3][r][0])-1 == int(nmonth) and int(sdata[0][3][r][1]) < int(nday) and int(sdata[0][3][r][1]) > int(best[1]):
-                    best[0] = int(sdata[0][3][r][0])
-                    best[1] = int(sdata[0][3][r][0])
-                    
-            except:
-                pass
+            weekday += 1
+        if weekday > 6:
+            weekday -= 6
+    
+    day9 = special_schedule(sdata,0,nmonth,nday)
+    latewed = special_schedule(sdata,1,nmonth,nday)
+    no_school = special_schedule(sdata,2,nmonth,nday)
+    
+    for r in range(len(sdata[0][3])):
+        try:
+            if int(sdata[0][3][r][0]) == int(nmonth) and int(sdata[0][3][r][1]) < int(nday) and int(sdata[0][3][r][1]) > int(best[1]):
+                best[0] = int(sdata[0][3][r][0])
+                best[1] = int(sdata[0][3][r][1])
+            elif int(sdata[0][3][r][0])-1 == int(nmonth) and int(sdata[0][3][r][1]) < int(nday) and int(sdata[0][3][r][1]) > int(best[1]):
+                best[0] = int(sdata[0][3][r][0])
+                best[1] = int(sdata[0][3][r][1])
+
+        except:
+            pass
     if best[0] >= 9:
         first = datetime.date(2017,best[0],best[1]).weekday()
-        print first,
-        print weekday
-        print int(nweek)
-        print datetime.date(2017,best[0],best[1]).isocalendar()[1]
         if int(nweek) != datetime.date(2017,best[0],best[1]).isocalendar()[1]:
-            print "diff"
-            day = int(first)-int(weekday)+6 # technically end weekday + (7(ie. days in a week so that it's not negative)-2(for the weekend) - start weekday + 1(just because)
+            weekend = True
+            day = int(weekday)-int(first)+6 # technically end weekday + (7(ie. days in a week so that it's not negative)-2(for the weekend) - start weekday + 1(just because)
         else:
-            print "same"
             day = int(weekday)-int(first)+1 # doesn't need the +(7-5) because it's the same week
     else:
         first = datetime.date(2018,best[0],best[1]).isoweekday()
         if nweek == datetime.date(2018,best[0],best[1]).isocalendar()[1]:
+            weekend = True
             day = int(first)-int(weekday)+6 # technically end weekday + (7(ie. days in a week so that it's not negative)-2(for the weekend) - start weekday + 1(just because)
         else:
             day = int(weekday)-int(first)+1 # doesn't need the +(7-5) because it's the same week
+    day9 = special_schedule(sdata,0,nmonth,nday)
+    latewed = special_schedule(sdata,1,nmonth,nday)
+    no_school = special_schedule(sdata,2,nmonth,nday)
+    past = 0
+    if weekend:
+        for p in range(day+2):
+            nschool_past = False
+            if nday-p < 1:
+                if nmonth-1 == 2:
+                    nschool_past = special_schedule(sdata,2,nmonth-1,nday-p+28)
+                elif nmonth-1 == 1 or nmonth-1 == 3 or nmonth-1 == 5 or nmonth-1 == 7 or nmonth-1 == 8 or nmonth-1 == 10 or nmonth-1 == 12:
+                    nschool_past = special_schedule(sdata,2,nmonth-1,nday-p+31)
+                else:
+                    nschool_past = special_schedule(sdata,2,nmonth-1,nday-p+30)
+
+            else:
+                nschool_past = special_schedule(sdata,2,nmonth,nday-p)
+                print nschool_past
+            if nschool_past:
+                past += 1
+    else:
+        for p in range(day):
+            nschool_past = False
+            if nday-p < 1:
+                if nmonth-1 == 2:
+                    nschool_past = special_schedule(sdata,2,nmonth-1,nday-p+28)
+                elif nmonth-1 == 1 or nmonth-1 == 3 or nmonth-1 == 5 or nmonth-1 == 7 or nmonth-1 == 8 or nmonth-1 == 10 or nmonth-1 == 12:
+                    nschool_past = special_schedule(sdata,2,nmonth-1,nday-p+31)
+                else:
+                    nschool_past = special_schedule(sdata,2,nmonth-1,nday-p+30)
+
+            else:
+                nschool_past = special_schedule(sdata,2,nmonth,nday-p)
+            if nschool_past:
+                past += 1
+    if past >=5:
+        for p in range(day+2):
+            nschool_past = special_schedule(sdata,2,nmonth,nday-p)
+            if nschool_past:
+                past += 1
+        if past > 8:
+            past -= 8
+    print past
+    day -= past
     print day
-    day9 = False
-    latewed = False
-    # sdata = update_data("dates",2,["\t","."])
-    # for i in range(len(sdata)):
-    #     new = sdata[i].split('\t')
-    #     for k in range(len(new)):
-    #         sdate = new[k].split('.')
-    #         try:
-    #             sdate[0] = int(sdate[0])
-    #             sdate[1] = int(sdate[1])
-    #         except:
-    #             pass
-    #         else:
-    #             if sdate[0] == nmonth and sdate[1] == nday:
-    #                 if i == 0:
-    #                     day9 = True
-    #                 elif i == 1:
-    #                     latewed = True
     
     now = datetime.datetime.now()
     if day9 == False:
@@ -279,7 +311,7 @@ def today(schedule,weekday,nmonth,nday,nweek,tomorrow):
             else:
                 times = ["8:20am","9:30am","9:55am","11:05am","12:10pm","1:20pm","1:30pm","2:40pm"]
             print day
-            classes = [schedule[day][0],"Break",schedule[day][1],"Lunch",schedule[day][2],"Break",schedule[day][3]]
+            classes = [schedule[day-1][0],"Break",schedule[day-1][1],"Lunch",schedule[day-1][2],"Break",schedule[day-1][3]]
         elif weekday != 5 and weekday != 6:
             if now.hour >= 9:
                 twenty, thirty = late_start()
@@ -292,7 +324,7 @@ def today(schedule,weekday,nmonth,nday,nweek,tomorrow):
             else:
                 times = ["8:20am","8:30am","9:00am","9:10am","10:20am","10:45am","11:55am","1:00pm","2:10pm","2:20pm","3:30pm"]
             print day
-            classes = ["TA Attendance","Prayers/House/Assembly","Break",schedule[day][0],"Break",schedule[day][1],"Lunch",schedule[day][2],"Break",schedule[day][3]]
+            classes = ["TA Attendance","Prayers/House/Assembly","Break",schedule[day-1][0],"Break",schedule[day-1][1],"Lunch",schedule[day-1][2],"Break",schedule[day-1][3]]
         else:
             print "There is no school."
         for f in range(len(times)*2-2):
@@ -305,20 +337,20 @@ def today(schedule,weekday,nmonth,nday,nweek,tomorrow):
                 print classes[f]+'\n' 
             except:
                 pass
-        print "\nNot day {}? Type \"edit\" followed by \"day\".".format(day)
+        # print "\nNot day {}? Type \"edit\" followed by \"day\".".format(day)
     else:
         print "It is a Day 9 schedule. Have fun!"
     print '\n'
 
 
-def edit(name,schedule):
-    change = raw_input("What would you like to edit? (block/note/times/special schedule)")
-    # data = update_data(name,True)
-
-    if change.find("switch") >= 0 or change.find("schedule") >= 0:
-        which = tryexc("What block would you like to change? ",len(data)-1)
-        data[which][0] = raw_input("What would you like to rename this block to? ")
-        change_data(name,data)
+# def edit(name,schedule):
+#     change = raw_input("What would you like to edit? (block/note/times/special schedule)")
+#     # data = update_data(name,True)
+# 
+#     if change.find("switch") >= 0 or change.find("schedule") >= 0:
+#         which = tryexc("What block would you like to change? ",len(data)-1)
+#         data[which][0] = raw_input("What would you like to rename this block to? ")
+#         change_data(name,data)
     
 
         
@@ -340,7 +372,7 @@ def main():
             today(schedule,weekday,nmonth,nday,nweek,True)
         
         elif call.find("credits") >= 0 or call.find("Credits") >= 0 or call.find("who") >= 0 or call.find("cool") >= 0:
-            print "\nMade by Denise Lee\nComSci 12 - A2\nOctober 26, 2017\n"
+            print "\nMade by Denise Lee\nComSci 12 - A2\nOctober 31, 2017\n"
         
         elif call.find("log") >= 0 or call.find("Log") >= 0 or call.find("out") >= 0 or call.find("Out") >= 0:
             print "\n"*50
