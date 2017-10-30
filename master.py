@@ -9,7 +9,7 @@ def user():
     name = raw_input("username: ")
     return name
     
-def update_data(files):
+def update_data(files,split,by):
     try:
         f = open(files+'.txt')
     except:
@@ -17,9 +17,33 @@ def update_data(files):
     else:
         data = f.readlines()
         f.close()
-    return data
+        if split == 0:
+            return data
+        else:
+            for w in range(split):
+                sdata = split_data(data,by)
+            return sdata
+def split_data(data,by):
+    sdata = []
+    ndata = []
+    if len(by) == 2:
+        for k in range(len(data)):
+            new = data[k].split(by[0])
+            for p in range(len(new)):
+                new[p] = new[p].split(by[1])
+                print new
+                print "D:"
+            ndata.append(new)
+        print ndata
+        print ":D"
+        sdata.append(ndata)
+    elif len(by) == 1:
+        for t in range(len(data)):
+            new = data[t].split(by[0])
+            sdata.append(new)
+    return sdata
 
-def add_data(files,lines):
+def change_data(files,lines):
     try:
         f = open(files+'.txt',"a")
     except:
@@ -27,6 +51,7 @@ def add_data(files,lines):
     else:
         for i in range(len(lines)):
             f.write(lines[i]+'\n')
+        f.close()
         
 
 def tryexc(do,max):
@@ -50,13 +75,15 @@ def p_date():
     weekday = date.today().weekday()
     nmonth = now.month
     nday = now.day
+    nweek = datetime.date.today().isocalendar()[1]
+    print nweek
     print "~~~~~~~~~~ {}, {} {}, {} ~~~~~~~~~~".format(calendar.day_name[weekday],calendar.month_name[nmonth],nday,now.year)
-    return weekday,nmonth,nday
+    return weekday,nmonth,nday,nweek
 
 def start():
     quit = False
     name = user()
-    data = update_data(name)
+    data = update_data(name,0,"")
     if len(data) >= 8:
         info = data[len(data)-1].split('\t')
         if info[0] == "S: Havergal":
@@ -82,10 +109,10 @@ def start():
                 ans = ""
     if quit == False:
         print "\n"*50
-        weekday,nmonth,nday = p_date()
+        weekday,nmonth,nday,nweek = p_date()
         print "\n"
         schedule = g_schedule(data,school)
-    return quit,name,school,weekday,nmonth,nday,schedule
+    return quit,name,school,weekday,nmonth,nday,nweek,schedule
 
 def school_blocks():
     school = raw_input("What school do you go to? ")
@@ -180,30 +207,68 @@ def p_schedule(data,schedule,):
         print ""
     print ""
         
-def today(data,schedule,weekday,nmonth,nday):
+def today(schedule,weekday,nmonth,nday,nweek,tomorrow):
     times = []
     classes = []
-    first = 1
-    # day = tryexc("What day of the schedule is it today? ",9)
-    day = abs(weekday - first)
-    day9 = False
-    latewed = False
-    sdata = update_data("special_schedules")
-    for i in range(len(sdata)):
-        new = sdata[i].split('\\t')
-        for k in range(len(new)):
-            sdate = new[k].split('.')
+    sdata = update_data("dates",2,["\t","."])
+    print sdata[0][3]
+    best = [0,0]
+
+    for r in range(len(sdata[0][3])):
+        if nday > 6:
             try:
-                sdate[0] = int(sdate[0])
-                sdate[1] = int(sdate[1])
+                if int(sdata[0][3][r][0]) == int(nmonth) and int(sdata[0][3][r][1]) < int(nday) and int(sdata[0][3][r][1]) > int(best[1]):
+                    best[0] = int(sdata[0][3][r][0])
+                    best[1] = int(sdata[0][3][r][1])
+
             except:
                 pass
-            else:
-                if sdate[0] == nmonth and sdate[1] == nday:
-                    if i == 0:
-                        day9 = True
-                    elif i == 1:
-                        latewed = True
+        else:
+            try:
+                print "oh"
+                if int(sdata[0][3][r][0])-1 == int(nmonth) and int(sdata[0][3][r][1]) < int(nday) and int(sdata[0][3][r][1]) > int(best[1]):
+                    best[0] = int(sdata[0][3][r][0])
+                    best[1] = int(sdata[0][3][r][0])
+                    
+            except:
+                pass
+    if best[0] >= 9:
+        first = datetime.date(2017,best[0],best[1]).weekday()
+        print first,
+        print weekday
+        print int(nweek)
+        print datetime.date(2017,best[0],best[1]).isocalendar()[1]
+        if int(nweek) != datetime.date(2017,best[0],best[1]).isocalendar()[1]:
+            print "diff"
+            day = int(first)-int(weekday)+6 # technically end weekday + (7(ie. days in a week so that it's not negative)-2(for the weekend) - start weekday + 1(just because)
+        else:
+            print "same"
+            day = int(weekday)-int(first)+1 # doesn't need the +(7-5) because it's the same week
+    else:
+        first = datetime.date(2018,best[0],best[1]).isoweekday()
+        if nweek == datetime.date(2018,best[0],best[1]).isocalendar()[1]:
+            day = int(first)-int(weekday)+6 # technically end weekday + (7(ie. days in a week so that it's not negative)-2(for the weekend) - start weekday + 1(just because)
+        else:
+            day = int(weekday)-int(first)+1 # doesn't need the +(7-5) because it's the same week
+    print day
+    day9 = False
+    latewed = False
+    # sdata = update_data("dates",2,["\t","."])
+    # for i in range(len(sdata)):
+    #     new = sdata[i].split('\t')
+    #     for k in range(len(new)):
+    #         sdate = new[k].split('.')
+    #         try:
+    #             sdate[0] = int(sdate[0])
+    #             sdate[1] = int(sdate[1])
+    #         except:
+    #             pass
+    #         else:
+    #             if sdate[0] == nmonth and sdate[1] == nday:
+    #                 if i == 0:
+    #                     day9 = True
+    #                 elif i == 1:
+    #                     latewed = True
     
     now = datetime.datetime.now()
     if day9 == False:
@@ -213,6 +278,7 @@ def today(data,schedule,weekday,nmonth,nday):
                 times = ["9:20am","10:20am","10:30am","11:30am","12:30pm","1:30pm","1:40pm","2:40pm"]
             else:
                 times = ["8:20am","9:30am","9:55am","11:05am","12:10pm","1:20pm","1:30pm","2:40pm"]
+            print day
             classes = [schedule[day][0],"Break",schedule[day][1],"Lunch",schedule[day][2],"Break",schedule[day][3]]
         elif weekday != 5 and weekday != 6:
             if now.hour >= 9:
@@ -225,6 +291,7 @@ def today(data,schedule,weekday,nmonth,nday):
                     times = ["8:20am","8:30am","9:00am","9:10am","10:20am","10:45am","11:55am","1:00pm","2:10pm","2:20pm","3:30pm"]
             else:
                 times = ["8:20am","8:30am","9:00am","9:10am","10:20am","10:45am","11:55am","1:00pm","2:10pm","2:20pm","3:30pm"]
+            print day
             classes = ["TA Attendance","Prayers/House/Assembly","Break",schedule[day][0],"Break",schedule[day][1],"Lunch",schedule[day][2],"Break",schedule[day][3]]
         else:
             print "There is no school."
@@ -238,22 +305,27 @@ def today(data,schedule,weekday,nmonth,nday):
                 print classes[f]+'\n' 
             except:
                 pass
+        print "\nNot day {}? Type \"edit\" followed by \"day\".".format(day)
     else:
         print "It is a Day 9 schedule. Have fun!"
     print '\n'
 
 
 def edit(name,schedule):
-    change = raw_input("What would you like to edit? ")
+    change = raw_input("What would you like to edit? (block/note/times/special schedule)")
+    # data = update_data(name,True)
+
     if change.find("switch") >= 0 or change.find("schedule") >= 0:
-        which = tryexc("What block would you like to change?",'15')
-        
+        which = tryexc("What block would you like to change? ",len(data)-1)
+        data[which][0] = raw_input("What would you like to rename this block to? ")
+        change_data(name,data)
+    
 
         
 def main():
-    quit,name,school,weekday,nmonth,nday,schedule = start()
+    quit,name,school,weekday,nmonth,nday,nweek,schedule = start()
     while quit == False:
-        data = update_data(name)
+        data = update_data(name,0,[])
         call = raw_input("What would you me like to do? (schedule/today/tomorrow/log out/credits/quit) ")
         
         if call.find("schedule") >= 0 or call.find("table") >= 0:
@@ -261,11 +333,11 @@ def main():
         
         elif call.find("today") >= 0 or call.find("Today") >= 0:
             print "\nToday's schedule is : \n"
-            today(data,schedule,weekday,nmonth,nday)
+            today(schedule,weekday,nmonth,nday,nweek,False)
             
         elif call.find("tomorrow") >= 0 or call.find("Tomorrow") >= 0:
             print "\nTomorrow's schedule is: \n"
-            today(data,schedule,weekday+1,nmonth,nday)
+            today(schedule,weekday,nmonth,nday,nweek,True)
         
         elif call.find("credits") >= 0 or call.find("Credits") >= 0 or call.find("who") >= 0 or call.find("cool") >= 0:
             print "\nMade by Denise Lee\nComSci 12 - A2\nOctober 26, 2017\n"
@@ -273,7 +345,7 @@ def main():
         elif call.find("log") >= 0 or call.find("Log") >= 0 or call.find("out") >= 0 or call.find("Out") >= 0:
             print "\n"*50
             print "\nSuccessfully logged out.\n\n"
-            quit,name,school,weekday,nmonth,nday,schedule = start()
+            quit,name,school,weekday,nmonth,nday,nweek,schedule = start()
             
         elif call.find("quit") >= 0 or call.find("Quit") >= 0 or call.find("stop") >= 0 or call.find("Stop") >= 0:
             quit = True
