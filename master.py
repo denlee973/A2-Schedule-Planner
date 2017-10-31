@@ -218,12 +218,16 @@ def today(schedule,weekday,nmonth,nday,nweek,tomorrow):
     sdata = update_data("dates",2,["\t","."])
     best = [0,0]
     weekend = False
+    print nday
     if tomorrow:
-        if (nmonth == 2 and nday == 28) or (nmonth == 1 or nmonth == 3 or nmonth == 5 or nmonth == 7 or nmonth == 8 or nmonth == 10 or nmonth == 12 and nday == 31) or (nmonth == 1 or nmonth == 3 or nmonth == 5 or nmonth == 7 or nmonth == 8 or nmonth == 10 or nmonth == 12 and nday == 30):
+        if (nmonth == 2 and nday == 28) or ((nmonth == 1 or nmonth == 3 or nmonth == 5 or nmonth == 7 or nmonth == 8 or nmonth == 10 or nmonth == 12) and nday == 31) or ((nmonth == 4 or nmonth == 6 or nmonth == 9 or nmonth == 11) and nday == 30):
             nmonth += 1
             nday = 1
+            print nmonth,
+            print nday
         else:
-            weekday += 1
+            nday += 1
+        weekday += 1
         if weekday > 6:
             weekday -= 6
     
@@ -233,6 +237,7 @@ def today(schedule,weekday,nmonth,nday,nweek,tomorrow):
     
     for r in range(len(sdata[0][3])):
         try:
+            
             if int(sdata[0][3][r][0]) == int(nmonth) and int(sdata[0][3][r][1]) < int(nday) and int(sdata[0][3][r][1]) > int(best[1]):
                 best[0] = int(sdata[0][3][r][0])
                 best[1] = int(sdata[0][3][r][1])
@@ -242,6 +247,7 @@ def today(schedule,weekday,nmonth,nday,nweek,tomorrow):
 
         except:
             pass
+    print best
     if best[0] >= 9:
         first = datetime.date(2017,best[0],best[1]).weekday()
         if int(nweek) != datetime.date(2017,best[0],best[1]).isocalendar()[1]:
